@@ -1,19 +1,13 @@
 package com.example.to_do_fullstack.dto;
 
 
-import com.example.to_do_fullstack.entity.enums.Status;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
-@Getter
+@Data
 public class TarefaDTO {
 
     private Long id;
@@ -26,6 +20,15 @@ public class TarefaDTO {
     private String descricao;
 
     @NotNull(message = "O status não pode ser nulo")
-    private Status status;
+    private String status;
 
+    @Override
+    public String toString() {
+        return "TarefaDTO{" +
+                "id=" + id +
+                ", titulo='" + titulo + '\'' +
+                ", descricao='" + descricao + '\'' +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }
