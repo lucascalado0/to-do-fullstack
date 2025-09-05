@@ -2,9 +2,11 @@ package com.example.to_do_fullstack.service.impl;
 
 import com.example.to_do_fullstack.dto.TarefaDTO;
 import com.example.to_do_fullstack.entity.Tarefa;
+import com.example.to_do_fullstack.exception.TarefaNotFoundException;
 import com.example.to_do_fullstack.mapper.TarefaMapper;
 import com.example.to_do_fullstack.repository.TarefaRepository;
 import com.example.to_do_fullstack.service.TarefaService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,51 +17,44 @@ public class TarefaServiceImpl implements TarefaService {
 
 
     private final TarefaRepository tarefaRepository;
-    private final TarefaMapper tarefaMapper;
 
-    public TarefaServiceImpl(TarefaRepository tarefaRepository, TarefaMapper tarefaMapper) {
+    public TarefaServiceImpl(TarefaRepository tarefaRepository) {
         this.tarefaRepository = tarefaRepository;
-        this.tarefaMapper = tarefaMapper;
+    }
+
+
+    @Override
+    public Tarefa criarTarefa(Tarefa tarefa) {
+        if (tarefa == null){
+            throw new IllegalArgumentException("A tarefa não pode ser nula");
+        }
+        return tarefaRepository.save(tarefa);
     }
 
     @Override
-    public TarefaDTO criarTarefa(TarefaDTO tarefaDTO) {
-        Tarefa tarefa = tarefaMapper.toEntity(tarefaDTO);
-        Tarefa tarefaSalva = tarefaRepository.save(tarefa);
-
-        return tarefaMapper.toDTO(tarefaSalva);
+    public Optional<Tarefa> buscarPorId(Long id) {
+        return tarefaRepository.findById(id);
     }
 
     @Override
-    public Optional<TarefaDTO> buscarPorId(Long id) {
-        return tarefaRepository.findById(id)
-                .map(tarefaMapper::toDTO);
-    }
-
-    @Override
-    public Optional<TarefaDTO> atualizarTarefa(Long id, TarefaDTO tarefaDTO) {
-        return tarefaRepository.findById(id)
-                .map(tarefaExistente -> {
-                    tarefaExistente.setTitulo(tarefaDTO.getTitulo());
-                    tarefaExistente.setDescricao(tarefaDTO.getDescricao());
-                    tarefaExistente.setStatus(tarefaDTO.getStatus());
-                    Tarefa tarefaAtualizada = tarefaRepository.save(tarefaExistente);
-                    return tarefaMapper.toDTO(tarefaAtualizada);
+    public Optional<Tarefa> atualizarTarefa(Long id, Tarefa tarefa) {
+        return tarefaRepository.findById(id).map(tarefaExistente -> {
+                    tarefaExistente.setTitulo(tarefa.getTitulo());
+                    tarefaExistente.setDescricao(tarefa.getDescricao());
+                    tarefaExistente.setStatus(tarefa.getStatus());
+                    return tarefaRepository.save(tarefaExistente);
                 });
     }
 
     @Override
-    public List<TarefaDTO> listarTodas() {
-        return  tarefaRepository.findAll()
-                .stream()
-                .map(tarefaMapper::toDTO)
-                .toList();
+    public List<Tarefa> listarTodas() {
+        return  tarefaRepository.findAll();
     }
 
     @Override
     public void deletar(Long id) {
         if (!tarefaRepository.existsById(id)){
-            throw new RuntimeException("Tarefa com o ID: " + id + "não encontrada");
+            throw new TarefaNotFoundException("Tarefa com o ID: " + id + "não encontrada");
         } else {
             tarefaRepository.deleteById(id);
         }
