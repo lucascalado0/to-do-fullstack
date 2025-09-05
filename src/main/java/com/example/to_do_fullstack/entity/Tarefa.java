@@ -6,12 +6,7 @@ import lombok.*;
 
 @Table(name = "tarefas")
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode(of = "id")
-@ToString
-@Getter
-@Setter
+@Data
 public class Tarefa {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,5 +28,8 @@ public class Tarefa {
         this.titulo = titulo;
         this.descricao = descricao;
         this.status = status;
+    }
+
+    public Tarefa() {
     }
 }
